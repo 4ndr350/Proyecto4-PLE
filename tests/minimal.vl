@@ -1,0 +1,4 @@
+defmodule Minimal
+  defspace MySpace end
+  defoperator myOp: A -> B end
+end

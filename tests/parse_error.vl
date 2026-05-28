@@ -1,0 +1,4 @@
+defmodule Roto
+  defspace MySpace end
+  defexpression (forall x in Element . (isIn x S
+end

@@ -1,0 +1,11 @@
+defmodule Set
+  using List
+  defspace Set < SuperSet end
+  defoperator union: Set -> Set -> Set [associative, id:empty] end
+  defoperator isIn: Element -> Set -> Bool end
+  defoperator implication: Bool -> Bool -> Bool end
+  defoperator negation: Bool -> Bool end
+  defvar p:Bool, q:Bool end
+  defrule (implication p q) -> (disjunction (negation p) q) end
+  defexpression (forall x in Element . (forall S in Set . (forall U in Set . ((isIn x (union S U)) ≡ ((isIn x S) or (isIn x U)))))) end
+end

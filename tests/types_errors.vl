@@ -1,0 +1,14 @@
+defmodule TypesErrors
+  defspace Bool end
+  defspace Set end
+
+  // Punto 5 Tipo no esta definido como defspace
+  defvar x : Tipo end
+
+  // Punto 5 - Fantasma no existe como defspace
+  defoperator op : Set -> Fantasma end
+
+  // Punto 6 - zz no fue declarado en defvar
+  defvar p : Bool end
+  defexpression (p or zz) end
+end
