@@ -128,12 +128,12 @@ syntax Expresion
   ;
 
 syntax Primaria
-  = neg:         "neg" Primaria
-  | cuantif:     Cuantificador
-  | operador:    Operador
-  | idRef:       AnyId
-  | numLit:      Numero
-  | paren:       "(" Expresion ")"
+  = neg:      "neg" Primaria
+  | cuantif:  Cuantificador
+  | operador: Operador
+  | idRef:    AnyId
+  | numLit:   Numero
+  | paren:    "(" Expresion ")"
   ;
 
 syntax Cuantificador

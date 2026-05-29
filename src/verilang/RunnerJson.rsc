@@ -16,8 +16,9 @@ module verilang::RunnerJson
 import verilang::Syntax;
 import verilang::AST;
 import verilang::Parser;        // parseModule, implodeModule
-import verilang::PrettyPrinter; // TODO(A): refactorizar para que RETORNE str
+import verilang::PrettyPrinter; // prettyPrintStr(Module) -> str
 import verilang::TypePalCheck;  // tmodelFromTree, getMessages (via TypePal)
+import verilang::AstJson;       // astToJson(Module) -> str
 
 import ParseTree;
 import Message;
@@ -128,38 +129,27 @@ void main(list[str] args) {
     str resumen    = inventarioResumen(m);
 
     // 4) Chequeo de tipos (TypePal)
-    // ── TODO(A): enganchar el verificador real. Sugerencia con lo que ya existe
-    //    en TypePalCheck.rsc (tmodelFromTree / getMessages):
-    //
-    //    bool   tcOk   = true;
-    //    list[str] tcErrs = [];
-    //    try {
-    //        TModel tm = tmodelFromTree(cst);
-    //        list[Message] msgs = getMessages(tm);
-    //        tcErrs = [ "<msg>" | Message msg <- msgs, msg is error ];
-    //        tcOk   = isEmpty(tcErrs);
-    //    } catch e: { tcOk = false; tcErrs = ["Error en type check: <e>"]; }
-    //
-    //    Mientras tanto, la BASE deja el parser funcionando y tipos en "ok":
     bool tcOk = true;
     list[str] tcErrs = [];
+    try {
+        TModel tm = tmodelFromTree(cst);
+        list[Message] msgs = getMessages(tm);
+        tcErrs = [ "Line <at.begin.line>: <msg>" | error(str msg, loc at) <- msgs ];
+        tcOk   = isEmpty(tcErrs);
+    } catch e: { tcOk = false; tcErrs = ["Type check error: <e>"]; }
 
     // VeriLang no separa "semantica" de TypePal -> la dejamos en true.
     bool semOk = true;
     list[str] semErrs = [];
 
     // 5) Codigo formateado (pretty printer)
-    // ── TODO(A): PrettyPrinter.rsc hoy hace println(...). Refactorizar para que
-    //    una funcion RETORNE str (p.ej. `str prettyPrintStr(Module m)`) y aqui:
-    //        str codigoFormateado = prettyPrintStr(m);
-    str codigoFormateado = "";
+    str codigoFormateado = prettyPrintStr(m);
 
-    // 6) Volcado del AST a JSON en disco (lo pide literalmente el enunciado)
-    // ── TODO(A): serializar el AST a un .json y escribirlo, p.ej.:
-    //        loc out = file[extension="ast.json"];
-    //        writeFile(out, astToJson(m));   // astToJson lo defines tu
-    //    (si optan por el flujo "Kotlin lee el archivo .json" en vez de stdout,
-    //     este es el punto donde se genera ese archivo).
+    // 6) Volcado del AST a JSON en disco
+    try {
+        loc astOut = file[extension = "ast.json"];
+        writeFile(astOut, astToJson(m));
+    } catch _: ;
 
     // 7) Todo OK -> emitir JSON. `info` (modulo + usings) va en output por ahora.
     //    Acuerdo de equipo (CONTRATO_JSON.md): si quieren un campo propio

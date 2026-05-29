@@ -247,12 +247,10 @@ void collect(current: (OperArg) `( <Expresion e> )`, Collector c) {
 // ─── Construccion del TModel ──────────────────────────────────────────────────
 
 public TModel tmodelFromTree(start[DefMod] pt) {
-    TypePalConfig cfg = tconfig(
-        prettyPrintAType = prettyAType
-    );
-    Collector col = newCollector("verilangCollect", pt, cfg);
-    collect(pt, col);
-    return newSolver(pt, col.run()).run();
+    DefMod tree = pt.top;
+    Collector col = newCollector("verilangCollect", tree, tconfig());
+    collect(tree, col);
+    return newSolver(tree, col.run()).run();
 }
 
 

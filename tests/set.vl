@@ -1,6 +1,8 @@
 defmodule Set
   using List
   defspace Set < SuperSet end
+  defspace Element end
+  defspace Bool end
   defoperator union: Set -> Set -> Set [associative, id:empty] end
   defoperator isIn: Element -> Set -> Bool end
   defoperator implication: Bool -> Bool -> Bool end
