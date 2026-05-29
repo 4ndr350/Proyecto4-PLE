@@ -14,11 +14,19 @@ void run(loc file) {
 }
 
 void prettyPrint(Module m) {
-    println("Module: <m.name>");
+    println(ppToStr(m));
+}
+
+public str prettyPrintStr(Module m) = ppToStr(m);
+
+// ─── Str-returning core ────────────────────────────────────────────────────
+
+str ppToStr(Module m) {
+    str out = "Module: <m.name>\n";
     if (!isEmpty(m.usings)) {
-        println("  Imports: <commaJoin(m.usings)>");
+        out += "  Imports: <commaJoin(m.usings)>\n";
     }
-    println("");
+    out += "\n";
 
     list[Funcion] sps   = [ f | Funcion f <- m.funciones, defSpace(_, _) := f ];
     list[Funcion] ops   = [ f | Funcion f <- m.funciones, defOp(_, _, _) := f ];
@@ -27,78 +35,93 @@ void prettyPrint(Module m) {
     list[Funcion] exps  = [ f | Funcion f <- m.funciones, defEx(_, _)     := f ];
     int totalVars = (0 | it + size(ds) | defVar(list[VarDecl] ds) <- m.funciones);
 
-    println("  --- Summary ---");
-    println("  Spaces:      <size(sps)>");
-    println("  Operators:   <size(ops)>");
-    println("  Relations:   <size(rels)>");
-    println("  Variables:   <totalVars>");
-    println("  Rules:       <size(rules)>");
-    println("  Expressions: <size(exps)>");
-    println("");
+    out += "  --- Summary ---\n";
+    out += "  Spaces:      <size(sps)>\n";
+    out += "  Operators:   <size(ops)>\n";
+    out += "  Relations:   <size(rels)>\n";
+    out += "  Variables:   <totalVars>\n";
+    out += "  Rules:       <size(rules)>\n";
+    out += "  Expressions: <size(exps)>\n\n";
 
     if (!isEmpty(sps)) {
-        println("  --- Spaces ---");
+        out += "  --- Spaces ---\n";
         for (defSpace(str name, str supe) <- sps) {
-            if (supe == "") println("    <name>");
-            else            println("    <name>  \<  <supe>");
+            if (supe == "") out += "    <name>\n";
+            else            out += "    <name>  \<  <supe>\n";
         }
-        println("");
+        out += "\n";
     }
 
     if (!isEmpty(ops)) {
-        println("  --- Operators ---");
+        out += "  --- Operators ---\n";
         for (defOp(str name, list[str] tc, list[Atributo] attrs) <- ops) {
             str atStr = ppAttrs(attrs);
-            println("    <name>  :  <ppTypeChain(tc)>  (arity <size(tc) - 1>)<atStr>");
+            out += "    <name>  :  <ppTypeChain(tc)>  (arity <size(tc) - 1>)<atStr>\n";
         }
-        println("");
+        out += "\n";
     }
 
     if (!isEmpty(rels)) {
-        println("  --- Relations ---");
+        out += "  --- Relations ---\n";
         for (defRel(str name, list[str] tc, list[Atributo] attrs) <- rels) {
             str atStr = ppAttrs(attrs);
-            println("    <name>  :  <ppTypeChain(tc)>  (arity <size(tc) - 1>)<atStr>");
+            out += "    <name>  :  <ppTypeChain(tc)>  (arity <size(tc) - 1>)<atStr>\n";
         }
-        println("");
+        out += "\n";
     }
 
     if (totalVars > 0) {
-        println("  --- Variables ---");
+        out += "  --- Variables ---\n";
         map[str, list[str]] byType = ();
         for (defVar(list[VarDecl] decls) <- m.funciones, varDecl(str nm, str tp) <- decls) {
             if (tp in byType) byType[tp] += [nm];
             else              byType[tp]  = [nm];
         }
         for (str tp <- byType) {
-            println("    <tp>  :  <commaJoin(byType[tp])>");
+            out += "    <tp>  :  <commaJoin(byType[tp])>\n";
         }
-        println("");
+        out += "\n";
     }
 
     if (!isEmpty(rules)) {
-        println("  --- Rules ---");
+        out += "  --- Rules ---\n";
         for (defRule(Operador lhs, Operador rhs) <- rules) {
-            println("    <ppOper(lhs)>  →  <ppOper(rhs)>");
+            out += "    <ppOper(lhs)>  →  <ppOper(rhs)>\n";
         }
-        println("");
+        out += "\n";
     }
 
     if (!isEmpty(exps)) {
-        println("  --- Expressions ---");
+        out += "  --- Expressions ---\n";
         int idx = 1;
         for (defEx(expresion(Expresion expr), list[Atributo] attrs) <- exps) {
-            if (size(exps) > 1) println("  [<idx>]");
-            if (!isEmpty(attrs)) {
-                str atLine = ppAttrs(attrs);
-                println("  <atLine>");
-            }
-            printExpr(expr, 1);
+            if (size(exps) > 1) out += "  [<idx>]\n";
+            if (!isEmpty(attrs)) out += "  <ppAttrs(attrs)>\n";
+            out += exprToStr(expr, 1);
             idx += 1;
         }
-        println("");
+        out += "\n";
     }
+
+    return out;
 }
+
+// ─── Expressions (str, indented) ───────────────────────────────────────────
+
+str exprToStr(paren(Expresion e), int indent) = exprToStr(e, indent);
+
+str exprToStr(quantForall(str v, str d, Expresion body), int indent) {
+    str dom = d == "" ? "" : " ∈ <d>";
+    return "<makeIndent(indent)>∀<v><dom> .\n" + exprToStr(body, indent + 1);
+}
+
+str exprToStr(quantExists(str v, str d, Expresion body), int indent) {
+    str dom = d == "" ? "" : " ∈ <d>";
+    return "<makeIndent(indent)>∃<v><dom> .\n" + exprToStr(body, indent + 1);
+}
+
+str exprToStr(Expresion e, int indent) =
+    "<makeIndent(indent)><ppExprInline(e)>\n";
 
 // ─── Type chain ────────────────────────────────────────────────────────────
 

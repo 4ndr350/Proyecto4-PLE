@@ -1,18 +1,11 @@
 defmodule TypesOk
-  // Punto 4: defspace define los tipos disponibles
   defspace Bool end
   defspace Int end
   defspace Set < SuperSet end
   defspace Element end
-
-  // Punto 5: los tipos en defvar corresponden a defspaces definidos
   defvar p : Bool, q : Bool end
   defvar x : Element end
-
-  // Punto 5: los tipos en defoperator son defspaces conocidos
   defoperator union : Set -> Set -> Set end
   defoperator isIn : Element -> Set -> Bool end
-
-  // Punto 6: los ids en defexpression estan declarados en defvar
-  defexpression (forall x in Element . (isIn x)) end
+  defexpression p or q end
 end

@@ -10,5 +10,5 @@ defmodule TypesErrors
 
   // Punto 6 - zz no fue declarado en defvar
   defvar p : Bool end
-  defexpression (p or zz) end
+  defexpression p or zz end
 end
