@@ -1,4 +1,3 @@
-// TODO: si renombraste el paquete, cambia "verilang" por el nombre de tu lenguaje
 package verilang.service
 
 import kotlinx.coroutines.Dispatchers
@@ -9,21 +8,20 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 /**
- * servicio que invoca rascal como subproceso y devuelve el resultado parseado
+ * Servicio que invoca Rascal como subproceso y devuelve el resultado parseado.
  *
- * la estructura esperada del proyecto:
- *
- *   tu-proyecto/
- *   ├── rascal-shell-stable.jar   #el jar de Rascal
- *   ├── src/                      #tu código Rascal (módulos .rsc)
- *   │   └── verilang/
- *   │       └── RunnerJson.rsc    #punto de entrada Rascal
- *   └── kotlin-app/               #esta app
- *       └── ...
- *
- * el servicio sube un nivel desde kotlin-app/ para encontrar el jar y src/.
+ * Estructura esperada del proyecto:
+ *   verilang-project/
+ *   ├── rascal-shell-stable.jar
+ *   ├── src/verilang/RunnerJson.rsc
+ *   └── kotlin-app/   ← esta app
  */
 class VeriLangService {
+
+    // ── PONER EN false CUANDO A TERMINE EL BACKEND ──────────────────────────
+    // Con true, run() devuelve el stub JSON en vez de invocar el jar de Rascal.
+    private val USE_STUB: Boolean = true
+    // ────────────────────────────────────────────────────────────────────────
 
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
@@ -43,10 +41,15 @@ class VeriLangService {
     private val srcDir: File get() = projectRoot.resolve("src")
 
     
-    //recibe la ruta absoluta del archivo fuente y devuelve el RunResult
-    //se ejecuta en un hilo de I/O para no bloquear la interfaz
-     
+    private fun loadStub(): RunResult {
+        val stubFile = projectRoot.resolve("examples/expected/set.expected.json")
+        if (!stubFile.exists())
+            return RunResult(error = "Stub no encontrado en: ${stubFile.absolutePath}")
+        return json.decodeFromString<RunResult>(stubFile.readText())
+    }
+
     suspend fun run(filePath: String): RunResult = withContext(Dispatchers.IO) {
+        if (USE_STUB) return@withContext loadStub()
         try {
             println("[VeriLangService] Ejecutando Rascal...")
             println("[VeriLangService] archivo : $filePath")
