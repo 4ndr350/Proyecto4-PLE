@@ -1,4 +1,3 @@
-// TODO: cambia "verilang" por el nombre de tu lenguaje
 package verilang.model
 
 import kotlinx.serialization.Serializable

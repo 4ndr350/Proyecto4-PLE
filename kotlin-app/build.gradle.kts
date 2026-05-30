@@ -6,7 +6,6 @@ plugins {
     kotlin("plugin.serialization") version "1.9.22"
 }
 
-// TODO: cambia "verilang" por el nombre de tu lenguaje (en minúsculas, sin espacios)
 group = "verilang"
 version = "1.0.0"
 
@@ -26,11 +25,9 @@ dependencies {
 
 compose.desktop {
     application {
-        // TODO: si renombraste el paquete, actualiza aquí también (ej. "verilang.MainKt")
         mainClass = "verilang.MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            // TODO: cambia el packageName por el nombre de tu lenguaje
             packageName = "VeriLang"
             packageVersion = "1.0.0"
         }

@@ -86,8 +86,6 @@ class VeriLangService {
             "-Dfile.encoding=UTF-8",
             "-Drascal.projectPath=${srcDir.absolutePath}",
             "-jar", rascalJar.absolutePath,
-            // TODO: cambia "verilang::RunnerJson" por el módulo Rascal de tu lenguaje
-            // El formato es "nombrePaquete::NombreModulo" (ej. "miprog::RunnerJson")
             "verilang::RunnerJson",
             filePath
         )
