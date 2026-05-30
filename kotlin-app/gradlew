@@ -1,0 +1,4 @@
+#!/bin/sh
+# Gradle wrapper script (minimal, generado para este proyecto)
+GRADLE_HOME="/c/Users/jrive/.gradle/wrapper/dists/gradle-8.5-bin/5t9huq95ubn472n8rpzujfbqh/gradle-8.5"
+exec "$GRADLE_HOME/bin/gradle" "$@"
